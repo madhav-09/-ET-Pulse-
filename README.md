@@ -205,22 +205,5 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full system diagram, agent role
 
 ---
 
-## Commit History
-
-```
-4bc8457  Initial commit from Create Next App
-3a568c6  feat: core types, JSON parser, route utils, profile storage
-a45b904  feat: AI layer — Gemini 2.0 Flash + NewsAPI integration
-87c71f5  feat: API routes — news, briefing, chat, arc, translate, search, summarize
-02adf27  feat: UI components — news card, briefing panel, chat, timeline, charts
-08442de  feat: pages — onboarding, feed, briefing, story arc, intelligence search
-4182e57  feat: layout, design system, dependencies
-c12cc45  docs: README, architecture document, impact model
-2e337fd  chore: remove unused boilerplate files
-c6fd804  docs: add architecture diagram image (archi.png)
-```
-
----
-
 *Built by Team AAM_MUNDE · Madhav Tiwari · GATE 2026 (CS) · AWS Certified Cloud Practitioner*
 *tiwarimadhav2309@gmail.com · +91-9374105274 · [linkedin.com/in/madhav-tiwari2309](https://linkedin.com/in/madhav-tiwari2309) · [github.com/madhav-09](https://github.com/madhav-09)*
