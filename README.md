@@ -2,11 +2,33 @@
 
 > **"I can't go back to reading news the old way."**
 
-ET Pulse reimagines business news for 2026 — not a filtered feed, but a fundamentally different intelligence experience. Every user gets a personalized newsroom, AI-synthesized deep briefings, interactive story arc tracking, and real-time vernacular translation.
+**Team:** AAM_MUNDE &nbsp;|&nbsp; **Track:** AI-Native News Experience (Problem Statement #8)
+
+**Builder:** Madhav Tiwari &nbsp;|&nbsp; +91-9374105274 &nbsp;|&nbsp; tiwarimadhav2309@gmail.com &nbsp;|&nbsp; [linkedin.com/in/madhav-tiwari2309](https://linkedin.com/in/madhav-tiwari2309) &nbsp;|&nbsp; [github.com/madhav-09](https://github.com/madhav-09)
+
+**Credentials:** GATE 2026 (CS) Qualified · AWS Certified Cloud Practitioner
 
 ---
 
-## Live Features
+## The Problem
+
+Business news in 2026 is still delivered like it's 2005:
+
+- **One-size-fits-all homepage** — a mutual fund investor and a college student see the exact same layout
+- **8 articles to understand 1 story** — no synthesis, no context, no intelligence
+- **English-only** — 500 million Hindi/Tamil/Telugu/Bengali-first Indians are underserved
+- **Passive consumption** — read, close, forget. No interaction, no follow-up, no depth
+- **No narrative tracking** — stories evolve over weeks; readers have no way to track them
+
+> The result: people spend **38 minutes/day** consuming news but retain almost nothing actionable.
+
+---
+
+## The Solution
+
+ET Pulse is not a filtered feed. It is a **fundamentally different intelligence experience** — a personalized AI newsroom that synthesizes, explains, translates, and converses.
+
+### Live Features
 
 | Feature | Route | What it does |
 |---|---|---|
@@ -16,18 +38,16 @@ ET Pulse reimagines business news for 2026 — not a filtered feed, but a fundam
 | **Intelligence Search** | `/search` | Search any company/topic → instant AI intelligence summary, sentiment score, market impact rating, story arc, and chat |
 | **Vernacular Engine** | All pages | Real-time translation into Hindi, Tamil, Telugu, Bengali — culturally adapted, not literal |
 
----
+### What Makes This Different
 
-## Tech Stack
-
-- **Framework**: Next.js 16 App Router (TypeScript)
-- **AI**: Google Gemini 2.0 Flash (via OpenAI-compatible endpoint) — briefings, story arcs, translation, chat, search intelligence
-- **News Data**: NewsAPI — real-time articles filtered by topic
-- **Charts**: Recharts (AreaChart for sentiment trends)
-- **Timeline**: Custom React component (color-coded by sentiment)
-- **Styling**: Tailwind CSS v4 — dark glass-morphism design system
-- **Icons**: Lucide React
-- **Storage**: localStorage (profile persistence, no backend required)
+| Traditional ET | ET Pulse |
+|---|---|
+| Same homepage for everyone | Personalized by persona + topics |
+| Read 8 articles for context | 1 AI briefing synthesizes everything |
+| English only | 5 languages, culturally adapted |
+| Passive reading | Interactive chat + follow-up |
+| No story tracking | Visual narrative arc with sentiment |
+| No search intelligence | AI-powered search with full context |
 
 ---
 
@@ -36,7 +56,7 @@ ET Pulse reimagines business news for 2026 — not a filtered feed, but a fundam
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/et-pulse.git
+git clone https://github.com/madhav-09/-ET-Pulse-.git
 cd et-pulse
 npm install
 ```
@@ -49,12 +69,6 @@ GEMINI_API_KEY=your_gemini_api_key
 
 # Required — real news articles
 NEWS_API_KEY=your_newsapi_key
-
-# Optional — unused in current MVP
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-CLOUDINARY_URL=
 ```
 
 **Get your keys:**
@@ -120,21 +134,37 @@ types/
 
 ---
 
+## Tech Stack
+
+- **Framework**: Next.js 16 App Router (TypeScript)
+- **AI**: Google Gemini 2.0 Flash (via OpenAI-compatible endpoint)
+- **News Data**: NewsAPI — real-time articles filtered by topic
+- **Charts**: Recharts (AreaChart for sentiment trends)
+- **Timeline**: Custom React component (color-coded by sentiment)
+- **Styling**: Tailwind CSS v4 — dark glass-morphism design system
+- **Icons**: Lucide React
+- **Storage**: localStorage (profile persistence, no backend required)
+- **Hosting**: Vercel-ready
+
+---
+
 ## How the AI Works
 
-All AI calls go through `lib/grok-ai.ts` → Gemini 2.0 Flash:
+All AI calls go through `lib/grok-ai.ts` → Gemini 2.0 Flash via 5 specialized agents:
 
 ```
 User action → Next.js API route → Gemini 2.0 Flash → JSON parsed → UI rendered
 ```
 
-- **Briefing**: structured JSON prompt → 7-field briefing object
-- **Story Arc**: structured JSON prompt → events + players + contrarian + predictions
-- **Translation**: language-name prompt with cultural adaptation rules
-- **Chat**: context-injected Q&A (full briefing/arc passed as context)
-- **Search Intelligence**: headlines → sentiment + impact + themes summary
+| Agent | Function | Output | Tokens |
+|---|---|---|---|
+| Briefing Synthesizer | `createBriefing()` | 7-field JSON briefing | 2000 |
+| Story Arc Builder | `buildStoryArc()` | events + players + contrarian + predictions | 1500 |
+| Follow-up Chat | `askFollowUp()` | Context-grounded plain text | 1500 |
+| Vernacular Translator | `translateText()` | Culturally adapted translation | 1500 |
+| Search Intelligence | `generateSearchIntelligence()` | sentiment + impact + themes | 800 |
 
-Fallback data is returned on any API failure so the UI never breaks.
+**Error handling:** 3× retry on 429 (2s → 4s → 8s backoff) · fallback data on failure · UI never breaks
 
 ---
 
@@ -152,21 +182,58 @@ Returning users are auto-redirected to `/feed`. "Switch User" clears profile.
 
 ---
 
-## Pitch Video Script (3 min)
+## Business Impact
 
-1. **0:00–0:30** — Problem: open ET homepage, show static one-size-fits-all layout
-2. **0:30–1:00** — Onboarding: pick Investor + Markets/IPO + Hindi → "Open My ET"
-3. **1:00–1:30** — Feed: real articles, sentiment badges, click "🧠 Deep Briefing"
-4. **1:30–2:00** — Briefing: show all 7 sections, switch to Hindi, watch live translation
-5. **2:00–2:30** — Chat: ask "What should an investor do right now?" → AI answers
-6. **2:30–3:00** — Story Arc: search "Adani Group" → timeline + sentiment chart + predictions
+| Category | Annual Value |
+|---|---|
+| User time saved (26 min/day × 3M DAU) | ₹19,500 crore social value |
+| Incremental ad revenue (2.3× session lift) | ₹788 crore |
+| ET Prime conversion lift (+50% relative) | ₹12 crore |
+| Vernacular market expansion (350M users) | ₹35 crore |
+| **Total direct revenue impact** | **₹835 crore (~$100M)** |
+
+- Operating cost at 3M DAU: **₹1.85 crore/year** (Gemini + NewsAPI)
+- **ROI: 451×**
+
+See [IMPACT.md](./IMPACT.md) for full assumptions and calculations.
 
 ---
 
 ## Architecture
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full agent diagram and system design.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full system diagram, agent roles, data flow, and error handling logic.
 
-## Impact Model
+---
 
-See [IMPACT.md](./IMPACT.md) for quantified business impact estimates.
+## Pitch Video Script (3 min)
+
+| Time | Scene |
+|---|---|
+| 0:00–0:30 | Problem: open ET homepage — same layout for everyone, 8 articles for 1 story |
+| 0:30–1:00 | Onboarding: pick Investor + Markets/IPO + Hindi → "Open My ET" |
+| 1:00–1:30 | Feed: real articles with sentiment badges, click "🧠 Deep Briefing" |
+| 1:30–2:00 | Briefing: all 7 sections load, switch to Hindi — watch live translation |
+| 2:00–2:30 | Chat: ask "What should an investor do right now?" → AI answers in Hindi |
+| 2:30–3:00 | Story Arc: search "Adani Group" → timeline + sentiment chart + predictions |
+
+---
+
+## Commit History
+
+```
+4bc8457  Initial commit from Create Next App
+3a568c6  feat: core types, JSON parser, route utils, profile storage
+a45b904  feat: AI layer — Gemini 2.0 Flash + NewsAPI integration
+87c71f5  feat: API routes — news, briefing, chat, arc, translate, search, summarize
+02adf27  feat: UI components — news card, briefing panel, chat, timeline, charts
+08442de  feat: pages — onboarding, feed, briefing, story arc, intelligence search
+4182e57  feat: layout, design system, dependencies
+c12cc45  docs: README, architecture document, impact model
+2e337fd  chore: remove unused boilerplate files
+c6fd804  docs: add architecture diagram image (archi.png)
+```
+
+---
+
+*Built by Team AAM_MUNDE · Madhav Tiwari · GATE 2026 (CS) · AWS Certified Cloud Practitioner*
+*tiwarimadhav2309@gmail.com · +91-9374105274 · [linkedin.com/in/madhav-tiwari2309](https://linkedin.com/in/madhav-tiwari2309) · [github.com/madhav-09](https://github.com/madhav-09)*
