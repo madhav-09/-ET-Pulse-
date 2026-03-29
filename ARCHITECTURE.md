@@ -8,60 +8,7 @@ ET Pulse is a Next.js 16 App Router application with a thin server layer (API ro
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         BROWSER (Client)                            │
-│                                                                     │
-│  ┌──────────┐  ┌────────────┐  ┌───────────┐  ┌────────────────┐  │
-│  │ /        │  │ /feed      │  │ /briefing │  │ /story         │  │
-│  │Onboarding│  │My ET Feed  │  │Deep Brief │  │Story Arc       │  │
-│  │3-step    │  │NewsCard ×N │  │+ChatBox   │  │Timeline+Chart  │  │
-│  │localStorage  LanguageToggle LanguageToggle  SentimentChart  │  │
-│  └──────────┘  └────────────┘  └───────────┘  └────────────────┘  │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ /search — Intelligence Search                                │  │
-│  │ SearchBar (nav, ⌘K) → /search?q= → AI Summary + Arc + Chat  │  │
-│  └──────────────────────────────────────────────────────────────┘  │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │ fetch() — JSON over HTTPS
-┌───────────────────────────────▼─────────────────────────────────────┐
-│                    NEXT.JS SERVER (API Routes)                       │
-│                                                                      │
-│  ┌─────────────────┐  ┌──────────────────┐  ┌──────────────────┐   │
-│  │ GET /api/news   │  │ POST /api/brief  │  │ POST /api/arc    │   │
-│  │ NewsAPI fetch   │  │ Gemini briefing  │  │ Gemini story arc │   │
-│  │ + sentiment     │  │ 7-field JSON     │  │ events+players   │   │
-│  └────────┬────────┘  └────────┬─────────┘  └────────┬─────────┘   │
-│           │                   │                      │              │
-│  ┌────────▼────────┐  ┌───────▼──────────┐  ┌───────▼──────────┐  │
-│  │ GET /api/search │  │ POST /api/chat   │  │ POST /api/trans  │  │
-│  │ news+arc+intel  │  │ Gemini Q&A       │  │ Gemini translate │  │
-│  └────────┬────────┘  └────────┬─────────┘  └────────┬─────────┘  │
-│           │                   │                      │             │
-│           └───────────────────┼──────────────────────┘             │
-│                               │                                     │
-│              ┌────────────────▼──────────────────┐                 │
-│              │         lib/grok-ai.ts             │                 │
-│              │   runGrokPrompt() — single entry   │                 │
-│              │   point for all Gemini calls       │                 │
-│              │   • retry on 429 (3x, exp backoff) │                 │
-│              │   • timeout: 30s                   │                 │
-│              │   • fallback data on any failure   │                 │
-│              └────────────────┬──────────────────┘                 │
-└───────────────────────────────┼─────────────────────────────────────┘
-                                │ HTTPS POST
-┌───────────────────────────────▼─────────────────────────────────────┐
-│              EXTERNAL SERVICES                                       │
-│                                                                      │
-│  ┌──────────────────────────────────┐  ┌──────────────────────────┐ │
-│  │ Google Gemini 2.0 Flash          │  │ NewsAPI                  │ │
-│  │ generativelanguage.googleapis.com│  │ newsapi.org/v2/everything│ │
-│  │ OpenAI-compatible endpoint       │  │ Real-time articles       │ │
-│  │ Free tier: 15 RPM / 1M TPD       │  │ Free tier: 100 req/day   │ │
-│  └──────────────────────────────────┘  └──────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![ET Pulse System Architecture](./public/archi.png)
 
 ---
 
@@ -150,6 +97,7 @@ User types topic → form submit
 Every API route returns a typed `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. HTTP status codes are always set correctly.
 
 ### AI Retry Logic (`lib/grok-ai.ts` — `runGrokPrompt`)
+
 ```
 attempt 0 → Gemini API call
   → 429 (rate limit): wait 2s, retry
