@@ -205,5 +205,11 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full system diagram, agent role
 
 ---
 
+## Pitch Deck
+
+📊 [ET_Pulse_Hackathon.pptx](./ET_Pulse_Hackathon.pptx) — 7-slide hackathon presentation
+
+---
+
 *Built by Team AAM_MUNDE · Madhav Tiwari · GATE 2026 (CS) · AWS Certified Cloud Practitioner*
 *tiwarimadhav2309@gmail.com · +91-9374105274 · [linkedin.com/in/madhav-tiwari2309](https://linkedin.com/in/madhav-tiwari2309) · [github.com/madhav-09](https://github.com/madhav-09)*
