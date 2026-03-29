@@ -205,19 +205,6 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full system diagram, agent role
 
 ---
 
-## Pitch Video Script (3 min)
-
-| Time | Scene |
-|---|---|
-| 0:00–0:30 | Problem: open ET homepage — same layout for everyone, 8 articles for 1 story |
-| 0:30–1:00 | Onboarding: pick Investor + Markets/IPO + Hindi → "Open My ET" |
-| 1:00–1:30 | Feed: real articles with sentiment badges, click "🧠 Deep Briefing" |
-| 1:30–2:00 | Briefing: all 7 sections load, switch to Hindi — watch live translation |
-| 2:00–2:30 | Chat: ask "What should an investor do right now?" → AI answers in Hindi |
-| 2:30–3:00 | Story Arc: search "Adani Group" → timeline + sentiment chart + predictions |
-
----
-
 ## Commit History
 
 ```
