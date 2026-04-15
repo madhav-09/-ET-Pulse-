@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { buildStoryArc } from "@/lib/grok-ai";
+import { buildStoryArc } from "@/lib/gemini-ai";
 import { failure, isNonEmptyString, parseJsonBody, success } from "@/lib/route-utils";
 
 export async function POST(request: NextRequest) {

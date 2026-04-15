@@ -1,5 +1,5 @@
-import { fetchLatestNews } from "@/lib/grok";
-import { translateText } from "@/lib/grok-ai";
+import { fetchLatestNews } from "@/lib/news";
+import { translateText } from "@/lib/gemini-ai";
 import { failure, success } from "@/lib/route-utils";
 
 export async function GET(request: Request) {

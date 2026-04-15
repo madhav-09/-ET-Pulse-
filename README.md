@@ -241,8 +241,8 @@ components/
   ErrorState.tsx            # Retry-able error display
 
 lib/
-  grok.ts                   # NewsAPI fetcher with keyword sentiment scoring
-  grok-ai.ts                # All Gemini AI functions (briefing, arc, translate, chat, search)
+  news.ts                   # NewsAPI fetcher with keyword sentiment scoring
+  gemini-ai.ts              # All Gemini AI functions (briefing, arc, translate, chat, search)
   json.ts                   # Robust JSON extraction from AI responses
   route-utils.ts            # API response helpers (success/failure)
   profile-storage.ts        # localStorage profile helpers
@@ -269,7 +269,7 @@ types/
 
 ## How the AI Works
 
-All AI calls go through `lib/grok-ai.ts` → Gemini 2.0 Flash via 5 specialized agents:
+All AI calls go through `lib/gemini-ai.ts` → Gemini 2.0 Flash via 5 specialized agents:
 
 ```
 User action → Next.js API route → Gemini 2.0 Flash → JSON parsed → UI rendered

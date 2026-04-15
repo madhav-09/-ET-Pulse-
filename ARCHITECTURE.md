@@ -2,7 +2,7 @@
 
 ## System Overview
 
-ET Pulse is a Next.js 16 App Router application with a thin server layer (API routes) and a rich client layer (React components). All AI intelligence is routed through a single abstraction (`lib/grok-ai.ts`) backed by Google Gemini 2.0 Flash. News data comes from NewsAPI.
+ET Pulse is a Next.js 16 App Router application with a thin server layer (API routes) and a rich client layer (React components). All AI intelligence is routed through a single abstraction (`lib/gemini-ai.ts`) backed by Google Gemini 2.0 Flash. News data comes from NewsAPI.
 
 ---
 
@@ -14,7 +14,7 @@ ET Pulse is a Next.js 16 App Router application with a thin server layer (API ro
 
 ## Agent Roles
 
-ET Pulse uses a **single AI model (Gemini 2.0 Flash)** acting as multiple specialized agents depending on the prompt context. Each agent is a distinct function in `lib/grok-ai.ts`:
+ET Pulse uses a **single AI model (Gemini 2.0 Flash)** acting as multiple specialized agents depending on the prompt context. Each agent is a distinct function in `lib/gemini-ai.ts`:
 
 ### Agent 1 — Briefing Synthesizer (`createBriefing`)
 - **Input**: Topic string (e.g. "Union Budget 2025")
@@ -61,7 +61,7 @@ User types topic → form submit
   → setTopic() + loadBriefing(topic)
     → POST /api/briefing { topic }
       → createBriefing(topic) [Gemini]
-        → runGrokPrompt(prompt, 2000)
+        → runGeminiPrompt(prompt, 2000)
           → Gemini API (HTTPS POST)
           ← raw text response
         → parseModelJson() [extract JSON from markdown/text]
@@ -96,7 +96,7 @@ User types topic → form submit
 ### API Layer (`lib/route-utils.ts`)
 Every API route returns a typed `{ ok: true, data }` or `{ ok: false, error: { code, message } }`. HTTP status codes are always set correctly.
 
-### AI Retry Logic (`lib/grok-ai.ts` — `runGrokPrompt`)
+### AI Retry Logic (`lib/gemini-ai.ts` — `runGeminiPrompt`)
 
 ```
 attempt 0 → Gemini API call

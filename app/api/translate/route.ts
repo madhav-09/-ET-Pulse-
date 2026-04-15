@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { translateText } from "@/lib/grok-ai";
+import { translateText } from "@/lib/gemini-ai";
 import { failure, isNonEmptyString, parseJsonBody, success } from "@/lib/route-utils";
 
 const allowedLanguages = ["en", "hi", "ta", "te", "bn"];

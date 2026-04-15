@@ -7,10 +7,10 @@ const GEMINI_ENDPOINT =
   "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
 function getApiKey() {
-  return process.env.GEMINI_API_KEY || process.env.GROK_API_KEY || "";
+  return process.env.GEMINI_API_KEY || "";
 }
 
-async function runGrokPrompt(prompt: string, maxTokens = 1500): Promise<string> {
+async function runGeminiPrompt(prompt: string, maxTokens = 1500): Promise<string> {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error("No AI API key configured");
 
@@ -82,10 +82,10 @@ const emptyBriefing: BriefingData = {
 
 export async function summarizeText(text: string) {
   if (!getApiKey()) {
-    return `Missing GROK_API_KEY. Summary placeholder for: ${text.slice(0, 80)}...`;
+    return `Missing GEMINI_API_KEY. Summary placeholder for: ${text.slice(0, 80)}...`;
   }
   try {
-    return await runGrokPrompt(`Summarize this article in 5 bullet points:\n\n${text}`);
+    return await runGeminiPrompt(`Summarize this article in 5 bullet points:\n\n${text}`);
   } catch {
     return `Summary unavailable from provider. Quick summary: ${text.slice(0, 240)}...`;
   }
@@ -95,7 +95,7 @@ export async function createBriefing(topic: string) {
   if (!getApiKey()) {
     return {
       ...emptyBriefing,
-      summary: `Missing GROK_API_KEY. Briefing placeholder for topic: ${topic}`,
+      summary: `Missing GEMINI_API_KEY. Briefing placeholder for topic: ${topic}`,
     };
   }
 
@@ -109,7 +109,7 @@ Rules:
 - Keep language concise and actionable.`;
 
   try {
-    const text = await runGrokPrompt(prompt, 2000);
+    const text = await runGeminiPrompt(prompt, 2000);
     return parseModelJson<BriefingData>(text, {
       ...emptyBriefing,
       summary: text,
@@ -143,7 +143,7 @@ export async function askFollowUp(question: string, context: string) {
     return `Missing GEMINI_API_KEY. Please add a valid key in .env.local and restart the server. Q: ${question}`;
   }
   try {
-    return await runGrokPrompt(`Context:\n${context}\n\nQuestion:\n${question}`);
+    return await runGeminiPrompt(`Context:\n${context}\n\nQuestion:\n${question}`);
   } catch (error) {
     const status = (error as { response?: { status?: number } })?.response?.status;
     if (status === 429) {
@@ -195,7 +195,7 @@ export async function buildStoryArc(topic: string) {
   }
 
   try {
-    const text = await runGrokPrompt(`Build a story arc tracker for this topic: ${topic}
+    const text = await runGeminiPrompt(`Build a story arc tracker for this topic: ${topic}
 Return strict JSON only with keys:
 events, players, contrarian, predictions
 Rules:
@@ -253,7 +253,7 @@ ${text}
 TRANSLATION IN ${langName.toUpperCase()}:`;
 
   try {
-    const result = await runGrokPrompt(prompt, 1500);
+    const result = await runGeminiPrompt(prompt, 1500);
     // If the model returned empty or the exact same text, return original
     if (!result.trim() || result.trim() === text.trim()) {
       console.warn(`[translate] Translation returned same text for language=${language}`);
@@ -305,7 +305,7 @@ Return strict JSON only with these keys:
 - keyThemes: array of 3-5 short theme strings`;
 
   try {
-    const text = await runGrokPrompt(prompt, 800);
+    const text = await runGeminiPrompt(prompt, 800);
     const result = parseModelJson<SearchIntelligenceResult>(text, fallback);
     if (!["Positive", "Neutral", "Negative"].includes(result.sentiment)) result.sentiment = fallback.sentiment;
     if (!["High", "Medium", "Low"].includes(result.marketImpact)) result.marketImpact = fallback.marketImpact;
