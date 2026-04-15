@@ -195,6 +195,13 @@ jobs:
             git checkout main || git checkout -b main
             git reset --hard origin/main
 
+            if [ ! -f .env.local ]; then
+              cat > .env.local <<'EOF'
+GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}
+EOF
+            fi
+
             sudo docker system prune -f || true
             if command -v docker-compose >/dev/null 2>&1; then
               sudo docker-compose down || true
