@@ -178,14 +178,22 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            echo "=== FIXED DEPLOY START ==="
-            cd ~ || exit 1
+            echo "=== FIXED DEPLOY START V2 ==="
 
-            rm -rf et-pulse || true
-            git clone "https://github.com/${{ github.repository }}.git" et-pulse
+            APP_DIR="/home/${{ secrets.EC2_USER }}/et-pulse"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
 
-            cd et-pulse
-            git checkout main || true
+            mkdir -p "$APP_DIR"
+            cd "$APP_DIR"
+
+            if [ ! -d ".git" ]; then
+              rm -rf "$APP_DIR"/* "$APP_DIR"/.[!.]* "$APP_DIR"/..?* || true
+              git clone "$REPO_URL" "$APP_DIR"
+            fi
+
+            git fetch origin main
+            git checkout main || git checkout -b main
+            git reset --hard origin/main
 
             sudo docker system prune -f || true
             if command -v docker-compose >/dev/null 2>&1; then
@@ -196,4 +204,4 @@ jobs:
               sudo docker compose up -d --build
             fi
 
-            echo "=== DEPLOY DONE ==="
+            echo "=== DEPLOY DONE V2 ==="
