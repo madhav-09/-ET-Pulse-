@@ -149,24 +149,18 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/madhav-09/et-pulse-web-gateway:${{ github.sha }}
-          format: "sarif"
-          output: "trivy-web-results.sarif"
           severity: "HIGH,CRITICAL"
 
       - name: Run Trivy vulnerability scanner on Intelligence API
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/madhav-09/et-pulse-intelligence-api:${{ github.sha }}
-          format: "sarif"
-          output: "trivy-intelligence-results.sarif"
           severity: "HIGH,CRITICAL"
 
       - name: Run Trivy vulnerability scanner on News API
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/madhav-09/et-pulse-news-api:${{ github.sha }}
-          format: "sarif"
-          output: "trivy-news-results.sarif"
           severity: "HIGH,CRITICAL"
 
   deploy-to-ec2:
