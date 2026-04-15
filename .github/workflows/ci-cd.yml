@@ -200,6 +200,11 @@ GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}
 EOF
 
+            CONTAINERS=$(sudo docker ps -aq --filter "name=^/et-pulse-")
+            if [ -n "$CONTAINERS" ]; then
+              sudo docker rm -f $CONTAINERS || true
+            fi
+
             sudo docker system prune -f || true
             if command -v docker-compose >/dev/null 2>&1; then
               sudo docker-compose down || true
