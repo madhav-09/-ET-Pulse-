@@ -203,9 +203,11 @@ EOF
             sudo docker system prune -f || true
             if command -v docker-compose >/dev/null 2>&1; then
               sudo docker-compose down || true
+              sudo docker rm -f et-pulse-news et-pulse-intelligence et-pulse-web et-pulse-nginx || true
               sudo docker-compose up -d --build
             else
               sudo docker compose down || true
+              sudo docker rm -f et-pulse-news et-pulse-intelligence et-pulse-web et-pulse-nginx || true
               sudo docker compose up -d --build
             fi
 
