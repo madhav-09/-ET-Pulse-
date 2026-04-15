@@ -12,7 +12,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   lint-and-test:
@@ -73,8 +73,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Skip Sonar scan (missing token)
+        if: ${{ secrets.SONAR_TOKEN == '' }}
+        run: echo "SONAR_TOKEN not configured. Skipping Sonar scan."
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        if: ${{ secrets.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -89,6 +94,13 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Compute container image base
+        id: image-meta
+        shell: bash
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "base=${REGISTRY}/${owner}/et-pulse" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -107,8 +119,8 @@ jobs:
           file: ./Dockerfile.web-gateway
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:${{ github.sha }}
+            ${{ steps.image-meta.outputs.base }}/web-gateway:latest
+            ${{ steps.image-meta.outputs.base }}/web-gateway:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -119,8 +131,8 @@ jobs:
           file: ./services/intelligence-api/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:${{ github.sha }}
+            ${{ steps.image-meta.outputs.base }}/intelligence-api:latest
+            ${{ steps.image-meta.outputs.base }}/intelligence-api:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -131,8 +143,8 @@ jobs:
           file: ./services/news-api/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:${{ github.sha }}
+            ${{ steps.image-meta.outputs.base }}/news-api:latest
+            ${{ steps.image-meta.outputs.base }}/news-api:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -142,10 +154,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Compute container image base
+        id: image-meta
+        shell: bash
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "base=${REGISTRY}/${owner}/et-pulse" >> "$GITHUB_OUTPUT"
+
       - name: Run Trivy vulnerability scanner on Web Gateway
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:${{ github.sha }}
+          image-ref: ${{ steps.image-meta.outputs.base }}/web-gateway:${{ github.sha }}
           format: "sarif"
           output: "trivy-web-results.sarif"
           severity: "HIGH,CRITICAL"
@@ -153,7 +172,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on Intelligence API
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:${{ github.sha }}
+          image-ref: ${{ steps.image-meta.outputs.base }}/intelligence-api:${{ github.sha }}
           format: "sarif"
           output: "trivy-intelligence-results.sarif"
           severity: "HIGH,CRITICAL"
@@ -161,7 +180,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on News API
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:${{ github.sha }}
+          image-ref: ${{ steps.image-meta.outputs.base }}/news-api:${{ github.sha }}
           format: "sarif"
           output: "trivy-news-results.sarif"
           severity: "HIGH,CRITICAL"
