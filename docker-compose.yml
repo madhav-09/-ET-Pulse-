@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   nginx:
     build:
@@ -36,12 +34,12 @@ services:
       - "3000:3000"
     expose:
       - "3000"
-    env_file:
-      - .env.local
     environment:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: "0.0.0.0"
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      NEWS_API_KEY: ${NEWS_API_KEY:-}
     depends_on:
       intelligence-api:
         condition: service_healthy
@@ -64,13 +62,12 @@ services:
     container_name: et-pulse-intelligence
     ports:
       - "4001:4001"
-    env_file:
-      - .env.local
     environment:
       NODE_ENV: production
       PORT: 4001
       REQUEST_TIMEOUT_MS: 15000
       RETRY_MAX_ATTEMPTS: 3
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     networks:
       - et-pulse-network
     restart: unless-stopped
@@ -88,12 +85,11 @@ services:
     container_name: et-pulse-news
     ports:
       - "4002:4002"
-    env_file:
-      - .env.local
     environment:
       NODE_ENV: production
       PORT: 4002
       CACHE_TTL_SECONDS: 60
+      NEWS_API_KEY: ${NEWS_API_KEY:-}
     networks:
       - et-pulse-network
     restart: unless-stopped
