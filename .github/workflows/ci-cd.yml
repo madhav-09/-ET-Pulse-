@@ -178,18 +178,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            echo "Starting deployment..."
-            cd /home/${{ secrets.EC2_USER }}
+            echo "=== FIXED DEPLOY START ==="
+            cd ~ || exit 1
 
-            if [ ! -d "et-pulse" ]; then
-              echo "Cloning repo..."
-              git clone "https://github.com/${{ github.repository }}.git" et-pulse
-            fi
+            rm -rf et-pulse || true
+            git clone "https://github.com/${{ github.repository }}.git" et-pulse
 
             cd et-pulse
-            git fetch origin main
-            git checkout main || git checkout -b main
-            git reset --hard origin/main
+            git checkout main || true
 
             sudo docker system prune -f || true
             if command -v docker-compose >/dev/null 2>&1; then
@@ -199,4 +195,5 @@ jobs:
               sudo docker compose down || true
               sudo docker compose up -d --build
             fi
-            echo "Deployment completed successfully"
+
+            echo "=== DEPLOY DONE ==="
