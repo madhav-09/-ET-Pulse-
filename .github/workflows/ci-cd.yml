@@ -142,6 +142,7 @@ jobs:
     needs: [build-images]
     permissions:
       contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -168,6 +169,24 @@ jobs:
           format: "sarif"
           output: "trivy-news-results.sarif"
           severity: "HIGH,CRITICAL"
+
+      - name: Upload Trivy results to GitHub Security
+        if: github.event_name == 'push'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-web-results.sarif"
+
+      - name: Upload Trivy results for Intelligence API
+        if: github.event_name == 'push'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-intelligence-results.sarif"
+
+      - name: Upload Trivy results for News API
+        if: github.event_name == 'push'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-news-results.sarif"
 
   deploy-to-ec2:
     runs-on: ubuntu-latest
