@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            set -euo pipefail
+            set -uo pipefail
 
             # Project path on the remote host.
             APP_DIR="/home/${{ secrets.USERNAME }}/et-pulse"
@@ -38,8 +38,23 @@ jobs:
             git checkout main
             git pull --ff-only origin main
 
-            # Stop existing stack and clean up orphaned containers.
-            docker compose down --remove-orphans
+            # Step 1: Force remove by exact container name (most reliable)
+            sudo docker rm -f et-pulse-intelligence et-pulse-news et-pulse-web-gateway et-pulse-nginx 2>/dev/null || true
 
-            # Start cleanly and recreate containers to avoid stale conflicts.
-            docker compose up -d --force-recreate --remove-orphans
+            # Step 2: Also remove by any name starting with et-pulse- (catches renamed ones)
+            sudo docker ps -a --format '{{.Names}}' | grep '^et-pulse-' | xargs -r sudo docker rm -f || true
+
+            if command -v docker-compose >/dev/null 2>&1; then
+              COMPOSE_CMD="sudo docker-compose"
+            else
+              COMPOSE_CMD="sudo docker compose"
+            fi
+
+            # Step 3: Now run compose down for cleanup
+            $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
+
+            # Fail fast for the actual deploy action only.
+            set -e
+
+            # Step 4: Start fresh
+            $COMPOSE_CMD up -d --build --force-recreate --remove-orphans
