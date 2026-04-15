@@ -1,0 +1,194 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Cache npm dependencies (Web Gateway)
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-web-gateway-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-web-gateway-
+
+      - name: Install dependencies (Web Gateway)
+        run: npm ci
+
+      - name: Lint (Web Gateway)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Cache npm dependencies (Intelligence API)
+        uses: actions/cache@v4
+        with:
+          path: services/intelligence-api/node_modules
+          key: ${{ runner.os }}-intelligence-api-${{ hashFiles('services/intelligence-api/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-intelligence-api-
+
+      - name: Install dependencies (Intelligence API)
+        run: cd services/intelligence-api && npm ci
+
+      - name: Build (Intelligence API)
+        run: cd services/intelligence-api && npm run build
+
+      - name: Cache npm dependencies (News API)
+        uses: actions/cache@v4
+        with:
+          path: services/news-api/node_modules
+          key: ${{ runner.os }}-news-api-${{ hashFiles('services/news-api/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-news-api-
+
+      - name: Install dependencies (News API)
+        run: cd services/news-api && npm ci
+
+      - name: Build (News API)
+        run: cd services/news-api && npm run build
+
+  sonarcloud-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+  build-images:
+    runs-on: ubuntu-latest
+    needs: [lint-and-test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Web Gateway image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.web-gateway
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Intelligence API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/intelligence-api
+          file: ./services/intelligence-api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push News API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/news-api
+          file: ./services/news-api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  trivy-scan:
+    runs-on: ubuntu-latest
+    needs: [build-images]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner on Web Gateway
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web-gateway:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-web-results.sarif"
+          severity: "HIGH,CRITICAL"
+
+      - name: Run Trivy vulnerability scanner on Intelligence API
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/intelligence-api:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-intelligence-results.sarif"
+          severity: "HIGH,CRITICAL"
+
+      - name: Run Trivy vulnerability scanner on News API
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/news-api:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-news-results.sarif"
+          severity: "HIGH,CRITICAL"
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: "trivy-*.sarif"
+
+  deploy-to-ec2:
+    runs-on: ubuntu-latest
+    needs: [trivy-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USER }}/et-pulse
+            set -e
+            cd /home/${{ secrets.EC2_USER }}/et-pulse
+            git pull origin main
+            docker-compose pull
+            docker-compose up -d
+            echo "Deployment completed successfully"

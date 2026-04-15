@@ -53,7 +53,7 @@ ET Pulse is not a filtered feed. It is a **fundamentally different intelligence 
 
 ## Setup
 
-### 1. Clone and install
+### Quick Start (Local Development)
 
 ```bash
 git clone https://github.com/madhav-09/-ET-Pulse-.git
@@ -61,34 +61,153 @@ cd et-pulse
 npm install
 ```
 
-### 2. Create `.env.local`
+### Environment Variables
 
+Create `.env.local`:
 ```bash
-# Required — AI for briefings, story arcs, translation, chat
-GEMINI_API_KEY=your_gemini_api_key
-
-# Required — real news articles
-NEWS_API_KEY=your_newsapi_key
+GEMINI_API_KEY=your_gemini_api_key      # Get from https://aistudio.google.com/app/apikey
+NEWS_API_KEY=your_newsapi_key           # Get from https://newsapi.org/register
 ```
 
-**Get your keys:**
-- Gemini API key (free): https://aistudio.google.com/app/apikey
-- NewsAPI key (free tier): https://newsapi.org/register
+### Run Locally
 
-### 3. Run
-
+**Development mode:**
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000)
 
-### 4. Build for production
-
+**Production mode:**
 ```bash
 npm run build
 npm start
 ```
+
+---
+
+## Architecture
+
+ET Pulse is a **microservices-based application** designed for scalability and cost-efficiency:
+
+### Services
+
+| Service | Port | Responsibility |
+|---------|------|-----------------|
+| **Web Gateway** | 3000 | Next.js UI + BFF (lightweight API proxy) |
+| **Intelligence API** | 4001 | AI processing (Gemini briefing, chat, translation, arc builder) |
+| **News API** | 4002 | News fetching + in-memory caching layer |
+
+### Data Flow
+
+```
+User → Web Gateway (port 3000)
+         ├→ Intelligence API (4001)  [Gemini AI processing]
+         └→ News API (4002)          [NewsAPI + cache]
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed system design and retry logic.
+
+---
+
+## Docker & Local Orchestration
+
+### Run All Services with Docker Compose
+
+```bash
+# Ensure .env.local is present with API keys
+docker-compose up --build
+
+# Test services
+curl http://localhost:3000            # Web Gateway
+curl http://localhost:4001/health     # Intelligence API
+curl http://localhost:4002/health     # News API
+curl http://localhost:4002/news?topic=tech  # News with caching
+
+# Stop all services
+docker-compose down
+```
+
+Services communicate via internal Docker network (`et-pulse-network`). Each service:
+- Runs in a lightweight Alpine container
+- Has health checks enabled (30s intervals)
+- Auto-restarts on failure
+- Logs to stdout/stderr for easy monitoring
+
+See [docker-compose.yml](docker-compose.yml) for full configuration.
+
+---
+
+## CI/CD Pipeline
+
+Automated testing, building, and deployment via **GitHub Actions** (see [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml)):
+
+### Workflow
+
+| Stage | Trigger | Action |
+|-------|---------|--------|
+| **Lint & Test** | PR + push | ESLint, build all services, cache deps |
+| **SonarCloud Scan** | All events | Code quality + security analysis (free for public repos) |
+| **Build Images** | Push to main/develop | Build 3 Docker images → push to GitHub Container Registry |
+| **Trivy Scan** | After build | Scan for HIGH/CRITICAL CVEs → fail if found |
+| **Deploy to EC2** | Push to main only | SSH pull → docker-compose up on EC2 |
+
+### Setup
+
+Add GitHub repository secrets in **Settings → Secrets**:
+- `SONAR_TOKEN` — SonarCloud authentication
+- `EC2_HOST` — EC2 instance IP
+- `EC2_USER` — SSH user (e.g., ubuntu)
+- `EC2_SSH_KEY` — EC2 private SSH key
+
+### Cost
+
+- **GitHub Actions**: 2,000 mins/month (free)
+- **Container Registry**: Free storage
+- **SonarCloud**: Free for public repos
+- **Trivy**: Free open-source
+
+---
+
+## Infrastructure & Deployment (Terraform)
+
+ET Pulse infrastructure is defined as code using **Terraform** for reproducible, free-tier AWS deployment.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete setup guide.
+
+### Quick Start
+
+```bash
+cd infra
+terraform init
+terraform plan
+terraform apply
+```
+
+This provisions:
+- **EC2 instance (t3.micro)**: Free tier eligible, auto-installs Docker + Docker Compose
+- **Security Group**: Ports 22 (SSH), 80 (HTTP), 3000 (Web Gateway), 443 (HTTPS)
+- **Key Pair**: SSH access management
+
+### Outputs
+
+After `terraform apply`, you get:
+- EC2 public IP → Application URL: `http://<IP>:3000`
+- SSH command → Direct instance access
+- Instance ID → For monitoring/updates
+
+### Cleanup
+
+```bash
+terraform destroy  # Stops all resources + billing
+```
+
+---
+
+## Production Readiness
+
+**Before launching to production, review [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md).**
+
+Includes security, deployment, reliability, and performance verification steps. ✅ Status: **Production-ready for MVP** (< 3k DAU).
 
 ---
 

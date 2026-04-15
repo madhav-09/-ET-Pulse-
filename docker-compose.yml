@@ -1,0 +1,109 @@
+version: "3.9"
+
+services:
+  nginx:
+    build:
+      context: ./infra/nginx
+      dockerfile: Dockerfile
+    container_name: et-pulse-nginx
+    ports:
+      - "80:80"
+      # Uncomment for production HTTPS:
+      # - "443:443"
+    # Uncomment for production SSL certs (Let's Encrypt):
+    # volumes:
+    #   - /etc/letsencrypt/live/yourdomain.com/fullchain.pem:/etc/nginx/ssl/cert.pem:ro
+    #   - /etc/letsencrypt/live/yourdomain.com/privkey.pem:/etc/nginx/ssl/key.pem:ro
+    depends_on:
+      web-gateway:
+        condition: service_healthy
+    networks:
+      - et-pulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.web-gateway
+    container_name: et-pulse-web
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    depends_on:
+      intelligence-api:
+        condition: service_healthy
+      news-api:
+        condition: service_healthy
+    networks:
+      - et-pulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  intelligence-api:
+    build:
+      context: ./services/intelligence-api
+      dockerfile: Dockerfile
+    container_name: et-pulse-intelligence
+    ports:
+      - "4001:4001"
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      REQUEST_TIMEOUT_MS: 15000
+      RETRY_MAX_ATTEMPTS: 3
+    networks:
+      - et-pulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  news-api:
+    build:
+      context: ./services/news-api
+      dockerfile: Dockerfile
+    container_name: et-pulse-news
+    ports:
+      - "4002:4002"
+    env_file:
+      - .env.local
+    environment:
+      NODE_ENV: production
+      PORT: 4002
+      CACHE_TTL_SECONDS: 60
+    networks:
+      - et-pulse-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  et-pulse-network:
+    driver: bridge

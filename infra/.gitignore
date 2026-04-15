@@ -1,0 +1,12 @@
+# Local terraform state and lock files
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+.terraform/
+.DS_Store
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
