@@ -177,10 +177,25 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/et-pulse
             set -e
-            cd /home/${{ secrets.EC2_USER }}/et-pulse
+
+            APP_DIR=""
+            if [ -d "/home/${{ secrets.EC2_USER }}/et-pulse-live" ]; then
+              APP_DIR="/home/${{ secrets.EC2_USER }}/et-pulse-live"
+            elif [ -d "/home/${{ secrets.EC2_USER }}/et-pulse" ]; then
+              APP_DIR="/home/${{ secrets.EC2_USER }}/et-pulse"
+            else
+              echo "No deploy directory found. Expected /home/${{ secrets.EC2_USER }}/et-pulse-live or /home/${{ secrets.EC2_USER }}/et-pulse"
+              exit 1
+            fi
+
+            cd "$APP_DIR"
             git pull origin main
-            docker-compose pull
-            docker-compose up -d
+            if command -v docker-compose >/dev/null 2>&1; then
+              docker-compose pull
+              docker-compose up -d
+            else
+              docker compose pull
+              docker compose up -d
+            fi
             echo "Deployment completed successfully"
