@@ -45,9 +45,9 @@ jobs:
             sudo docker ps -a --format '{{.Names}}' | grep '^et-pulse-' | xargs -r sudo docker rm -f || true
 
             if command -v docker-compose >/dev/null 2>&1; then
-              COMPOSE_CMD="sudo docker-compose"
+              COMPOSE_CMD="sudo docker-compose --env-file .env.local"
             else
-              COMPOSE_CMD="sudo docker compose"
+              COMPOSE_CMD="sudo docker compose --env-file .env.local"
             fi
 
             # Step 3: Now run compose down for cleanup
