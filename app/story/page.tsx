@@ -12,8 +12,8 @@ import type { StoryArc } from "@/types";
 const emptyArc: StoryArc = { events: [], players: [], contrarian: "", predictions: [] };
 
 const suggestedTopics = [
-  "Jio Financial Services", "Union Budget 2025", "Adani Group",
-  "RBI Rate Decision", "Zomato IPO", "India GDP Growth",
+  "Zomato IPO", "Adani Group", "Jio Financial Services",
+  "Union Budget 2025", "RBI Rate Decision", "India GDP Growth",
 ];
 
 export default function StoryPage() {
