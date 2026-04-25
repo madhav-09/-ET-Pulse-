@@ -80,6 +80,76 @@ const emptyBriefing: BriefingData = {
   watchSignals: [],
 };
 
+function buildTopicAwareFallbackBriefing(topic: string): BriefingData {
+  const lower = topic.toLowerCase();
+
+  const isBudget = /budget|union budget|fiscal|tax|capex|subsidy/.test(lower);
+  const isMarkets = /market|sensex|nifty|equity|stocks|ipo/.test(lower);
+  const isTech = /tech|startup|ai|saas|digital|semiconductor/.test(lower);
+
+  const keyPlayers = [
+    { name: "Policy Makers", role: "Set direction and regulatory clarity" },
+    { name: "Market Participants", role: "Reallocate capital based on new signals" },
+  ];
+
+  if (isBudget) {
+    keyPlayers.push(
+      { name: "Finance Ministry", role: "Defines fiscal priorities, tax policy, and spending allocation" },
+      { name: "Sector Bodies", role: "Interpret budget measures and guide implementation narratives" },
+    );
+  }
+
+  if (isTech) {
+    keyPlayers.push({ name: "Growth-stage Startups", role: "Adjust hiring and expansion based on cost of capital" });
+  }
+
+  const marketImpact = isBudget
+    ? "Near-term volatility is likely as participants reprice tax, capex, and deficit assumptions across sectors."
+    : isMarkets
+      ? "Positioning may shift quickly as participants react to earnings outlook, liquidity, and policy signals."
+      : "Near-term volatility is likely while participants reprice risk and opportunity around this topic.";
+
+  const sectorImpact = isBudget
+    ? "Banks, infrastructure, consumption, and manufacturing are likely to diverge based on tax changes, capex quality, and subsidy design."
+    : isTech
+      ? "IT services, SaaS, fintech, and internet platforms may see different impacts based on demand durability and funding conditions."
+      : "Spillover can vary by sector exposure, debt profile, and sensitivity to policy or sentiment shifts.";
+
+  const whatChanged = isBudget
+    ? "Focus shifted from headline announcements to implementation quality, fiscal math credibility, and second-order effects on margins and demand."
+    : "The narrative shifted from headline reaction to second-order effects on margins, demand, and valuation.";
+
+  const timeline = [
+    "Initial trigger event and first reactions",
+    "Secondary clarifications and institutional commentary",
+    "Emerging consensus and revised outlook",
+  ];
+
+  const watchSignals = isBudget
+    ? [
+        "Official implementation circulars and effective dates",
+        "Tax and duty impact on sector-level margins",
+        "Government capex execution pace vs. target",
+        "Management guidance updates in upcoming results",
+        "Institutional flow rotation across cyclicals/defensives",
+      ]
+    : [
+        "Official policy notes and implementation dates",
+        "Quarterly guidance updates",
+        "Institutional flow trends",
+      ];
+
+  return {
+    summary: `${topic}: key developments are evolving quickly; prioritize implementation details, earnings sensitivity, and capital-flow confirmation before taking directional calls.`,
+    marketImpact,
+    keyPlayers,
+    sectorImpact,
+    timeline,
+    whatChanged,
+    watchSignals,
+  };
+}
+
 export async function summarizeText(text: string) {
   if (!getApiKey()) {
     return `Missing GEMINI_API_KEY. Summary placeholder for: ${text.slice(0, 80)}...`;
@@ -93,10 +163,7 @@ export async function summarizeText(text: string) {
 
 export async function createBriefing(topic: string) {
   if (!getApiKey()) {
-    return {
-      ...emptyBriefing,
-      summary: `Missing GEMINI_API_KEY. Briefing placeholder for topic: ${topic}`,
-    };
+    return buildTopicAwareFallbackBriefing(topic);
   }
 
   const prompt = `Create a detailed business-news briefing for: ${topic}
@@ -115,26 +182,7 @@ Rules:
       summary: text,
     });
   } catch {
-    return {
-      summary: `${topic}: multiple sources indicate active developments; review impact, players, and signals below.`,
-      marketImpact: "Near-term volatility is likely while participants reprice risk and opportunity around this topic.",
-      keyPlayers: [
-        { name: "Policy Makers", role: "Set direction and regulatory clarity" },
-        { name: "Market Participants", role: "Reallocate capital based on new signals" },
-      ],
-      sectorImpact: "Spillover can vary by sector exposure, debt profile, and sensitivity to policy or sentiment shifts.",
-      timeline: [
-        "Initial trigger event and first reactions",
-        "Secondary clarifications and institutional commentary",
-        "Emerging consensus and revised outlook",
-      ],
-      whatChanged: "The narrative shifted from headline reaction to second-order effects on margins, demand, and valuation.",
-      watchSignals: [
-        "Official policy notes and implementation dates",
-        "Quarterly guidance updates",
-        "Institutional flow trends",
-      ],
-    };
+    return buildTopicAwareFallbackBriefing(topic);
   }
 }
 
