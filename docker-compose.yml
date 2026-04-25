@@ -34,6 +34,8 @@ services:
       - "3000:3000"
     expose:
       - "3000"
+    env_file:
+      - .env.local
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -62,6 +64,8 @@ services:
     container_name: et-pulse-intelligence
     ports:
       - "4001:4001"
+    env_file:
+      - .env.local
     environment:
       NODE_ENV: production
       PORT: 4001
@@ -85,6 +89,8 @@ services:
     container_name: et-pulse-news
     ports:
       - "4002:4002"
+    env_file:
+      - .env.local
     environment:
       NODE_ENV: production
       PORT: 4002
