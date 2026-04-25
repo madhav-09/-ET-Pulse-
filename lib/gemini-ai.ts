@@ -1,5 +1,6 @@
 import axios from "axios";
 import { parseModelJson } from "@/lib/json";
+import { fetchLatestNews } from "@/lib/news";
 import type { StoryArc } from "@/types";
 
 // Google Gemini (free tier) — OpenAI-compatible endpoint
@@ -150,6 +151,62 @@ function buildTopicAwareFallbackBriefing(topic: string): BriefingData {
   };
 }
 
+async function buildNewsBackedFallbackBriefing(topic: string): Promise<BriefingData> {
+  const base = buildTopicAwareFallbackBriefing(topic);
+
+  try {
+    const news = await fetchLatestNews(topic, "en", 6);
+    if (!news.length) return base;
+
+    const top = news.slice(0, 3);
+    const avgSentiment = top.reduce((sum, item) => sum + item.sentiment, 0) / top.length;
+
+    const sentimentView =
+      avgSentiment >= 60
+        ? "constructive"
+        : avgSentiment <= 40
+          ? "cautious"
+          : "balanced";
+
+    const sources = [...new Set(top.map((item) => item.source).filter(Boolean))];
+    const sourceText = sources.length > 0 ? ` Sources tracking this include ${sources.join(", ")}.` : "";
+
+    const keyPlayers = [
+      ...base.keyPlayers,
+      ...top.slice(0, 2).map((item) => ({
+        name: item.source,
+        role: "Influences narrative through recent coverage and framing",
+      })),
+    ].slice(0, 5);
+
+    const timeline = top.map((item) => {
+      const date = new Date(item.publishedAt);
+      const safeDate = Number.isNaN(date.getTime()) ? "Recent" : date.toISOString().slice(0, 10);
+      return `${safeDate}: ${item.title}`;
+    });
+
+    const watchSignals = [
+      ...top.map((item) => `Follow-up coverage on: ${item.title.slice(0, 90)}`),
+      ...base.watchSignals,
+    ].slice(0, 5);
+
+    return {
+      ...base,
+      summary: `${topic}: Recent coverage indicates a ${sentimentView} setup with focus on ${top
+        .map((item) => item.title)
+        .join("; ")}.${sourceText}`,
+      marketImpact: `${base.marketImpact} News-flow sentiment currently skews ${sentimentView}.`,
+      keyPlayers,
+      sectorImpact: `${base.sectorImpact} Current headlines point to uneven impact across exposed sectors.`,
+      timeline,
+      whatChanged: `${base.whatChanged} The latest headline sequence suggests positioning is now driven by execution signals over announcements.`,
+      watchSignals,
+    };
+  } catch {
+    return base;
+  }
+}
+
 export async function summarizeText(text: string) {
   if (!getApiKey()) {
     return `Missing GEMINI_API_KEY. Summary placeholder for: ${text.slice(0, 80)}...`;
@@ -163,7 +220,7 @@ export async function summarizeText(text: string) {
 
 export async function createBriefing(topic: string) {
   if (!getApiKey()) {
-    return buildTopicAwareFallbackBriefing(topic);
+    return await buildNewsBackedFallbackBriefing(topic);
   }
 
   const prompt = `Create a detailed business-news briefing for: ${topic}
@@ -182,7 +239,7 @@ Rules:
       summary: text,
     });
   } catch {
-    return buildTopicAwareFallbackBriefing(topic);
+    return await buildNewsBackedFallbackBriefing(topic);
   }
 }
 
