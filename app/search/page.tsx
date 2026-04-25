@@ -18,8 +18,9 @@ type SearchData = {
 };
 
 const quickSearches = [
-  "Nvidia", "Tesla", "Reliance Industries", "Union Budget 2026",
-  "RBI Policy", "AI Startups", "Adani Group", "OpenAI",
+  "Nvidia", "OpenAI", "Reliance Industries", "US Tariffs Trump",
+  "Iran Israel War", "RBI Policy", "Adani Group", "Paytm Crisis",
+  "Ukraine Russia War", "Zomato IPO", "India GDP Growth", "Jio Financial Services",
 ];
 
 export default function SearchPage() {

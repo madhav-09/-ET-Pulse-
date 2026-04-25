@@ -140,6 +140,33 @@ export default function FeedPage() {
         </Link>
       </div>
 
+      {/* Trending Topics */}
+      <div className="mb-6">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-white/25">Trending Stories</p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "🇮🇷 Iran-Israel War", q: "Iran Israel War" },
+            { label: "🇺🇸 US Tariffs", q: "US Tariffs Trump" },
+            { label: "🤖 OpenAI", q: "OpenAI" },
+            { label: "⚡ Nvidia", q: "Nvidia" },
+            { label: "🇺🇦 Ukraine War", q: "Ukraine Russia War" },
+            { label: "📱 Paytm Crisis", q: "Paytm Crisis" },
+            { label: "🏦 RBI Rate Cut", q: "RBI Rate Decision" },
+            { label: "📊 Adani Group", q: "Adani Group" },
+            { label: "🛢️ Oil Prices", q: "Iran Israel War" },
+            { label: "🇮🇳 India GDP", q: "India GDP Growth" },
+          ].map((t) => (
+            <Link
+              key={t.label}
+              href={`/story?topic=${encodeURIComponent(t.q)}`}
+              className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/50 transition hover:border-amber-400/40 hover:bg-amber-400/[0.06] hover:text-amber-300"
+            >
+              {t.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {isLoading && <FeedSkeleton />}
       {errorMessage && (
         <ErrorState

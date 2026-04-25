@@ -390,6 +390,184 @@ const HARDCODED_ARCS: Record<string, StoryArc> = {
     ],
   },
 
+  "iran israel war": {
+    events: [
+      { date: "2024-04-01", headline: "Iran launches 300+ drones and missiles at Israel — first direct attack in history; Iron Dome intercepts 99%", sentiment: "negative", sentimentScore: -0.9 },
+      { date: "2024-04-14", headline: "Oil prices spike 4% to $92/barrel; Brent crude hits 6-month high on Middle East escalation fears", sentiment: "negative", sentimentScore: -0.75 },
+      { date: "2024-04-19", headline: "Israel retaliates with limited strike on Isfahan; markets stabilise as both sides signal de-escalation", sentiment: "neutral", sentimentScore: 0.1 },
+      { date: "2024-10-01", headline: "Iran fires 180 ballistic missiles at Israel after Hezbollah chief Nasrallah killed — second direct attack", sentiment: "negative", sentimentScore: -0.88 },
+      { date: "2024-10-26", headline: "Israel strikes Iranian military sites; Iran vows 'crushing response' — Strait of Hormuz closure risk rises", sentiment: "negative", sentimentScore: -0.8 },
+      { date: "2025-01-15", headline: "Gaza ceasefire deal reached; Iran-backed groups pause attacks — oil falls back to $74/barrel", sentiment: "positive", sentimentScore: 0.6 },
+      { date: "2025-04-10", headline: "US-Iran nuclear talks resume in Oman; sanctions relief discussed — geopolitical risk premium eases", sentiment: "positive", sentimentScore: 0.5 },
+    ],
+    players: [
+      { name: "Iran (IRGC)", role: "Launched two unprecedented direct missile attacks on Israel; proxy network spans Lebanon, Yemen, Iraq" },
+      { name: "Israel (IDF)", role: "Conducted retaliatory strikes; assassinated Nasrallah and Hamas leadership" },
+      { name: "US (Biden/Trump)", role: "Deployed carrier groups; brokered Gaza ceasefire; re-engaged Iran on nuclear deal" },
+      { name: "Hezbollah / Hamas", role: "Iran's primary proxies; significantly degraded by Israeli operations in 2024" },
+      { name: "OPEC+ / Saudi Arabia", role: "Managed oil supply to prevent price spiral; Riyadh quietly coordinated with Washington" },
+    ],
+    contrarian: "Markets have repeatedly underpriced Middle East escalation risk and then overpriced it once it materialises. The real tail risk is not a direct Iran-Israel war but a Strait of Hormuz closure — 20% of global oil supply transits this chokepoint. India imports 85% of its oil; a 30-day closure would be more damaging to India's current account than any domestic policy shock.",
+    predictions: [
+      "Watch Strait of Hormuz shipping insurance rates — spike signals real closure risk",
+      "Track Brent crude above $95 as the threshold where RBI's inflation math breaks",
+      "Monitor US-Iran nuclear talks — deal would release 1M+ barrels/day, crashing oil",
+      "India's strategic petroleum reserve (SPR) utilisation signals government's private risk assessment",
+    ],
+  },
+
+  "us tariffs trump": {
+    events: [
+      { date: "2025-01-20", headline: "Trump returns to White House; signs executive order declaring national economic emergency to justify tariffs", sentiment: "negative", sentimentScore: -0.6 },
+      { date: "2025-02-01", headline: "25% tariffs on Canada and Mexico announced; 10% on China — markets sell off globally", sentiment: "negative", sentimentScore: -0.75 },
+      { date: "2025-03-04", headline: "Canada retaliates with C$30B in counter-tariffs; EU prepares €26B response package", sentiment: "negative", sentimentScore: -0.7 },
+      { date: "2025-04-02", headline: "'Liberation Day': Trump announces 10-50% tariffs on 185 countries — largest trade action since 1930 Smoot-Hawley", sentiment: "negative", sentimentScore: -0.95 },
+      { date: "2025-04-09", headline: "90-day pause on most tariffs announced after bond market rout; China tariffs raised to 145%", sentiment: "positive", sentimentScore: 0.55 },
+      { date: "2025-04-22", headline: "India in talks for bilateral trade deal; Modi-Trump call signals preferential treatment possible", sentiment: "positive", sentimentScore: 0.6 },
+    ],
+    players: [
+      { name: "Donald Trump", role: "Architect of tariff strategy; uses trade as geopolitical leverage" },
+      { name: "China (Xi Jinping)", role: "Primary target; retaliated with 125% counter-tariffs and rare earth export controls" },
+      { name: "India (Modi)", role: "Positioned as beneficiary — manufacturing alternative to China; in active trade deal talks" },
+      { name: "US Treasury / Scott Bessent", role: "Pushed for 90-day pause after bond market signalled systemic stress" },
+      { name: "EU / Canada", role: "Coordinating retaliatory measures; testing WTO dispute mechanisms" },
+    ],
+    contrarian: "India is widely seen as the biggest beneficiary of US-China decoupling. But the supply chain shift to India requires 5-10 years of infrastructure, skills, and regulatory reform that cannot be compressed. Vietnam, Mexico, and Bangladesh are faster-moving alternatives. India's tariff on US goods (average 17% vs US's 26% on India) remains a friction point that could derail the bilateral deal narrative.",
+    predictions: [
+      "Watch India-US bilateral trade deal timeline — any framework agreement is a major market catalyst",
+      "Track Apple, Samsung supply chain announcements — India factory expansions confirm the thesis",
+      "Monitor China's rare earth export controls — affects semiconductors, EVs, defence globally",
+      "US bond yields above 5% signal tariff-driven inflation forcing Fed to stay hawkish",
+    ],
+  },
+
+  "openai": {
+    events: [
+      { date: "2022-11-30", headline: "ChatGPT launches publicly — reaches 1 million users in 5 days; fastest consumer product adoption in history", sentiment: "positive", sentimentScore: 0.95 },
+      { date: "2023-03-14", headline: "GPT-4 released — passes bar exam in top 10%, scores 1410 SAT; multimodal capabilities unveiled", sentiment: "positive", sentimentScore: 0.9 },
+      { date: "2023-11-17", headline: "Sam Altman fired by OpenAI board; Microsoft shares drop 3%; 700 employees threaten to quit", sentiment: "negative", sentimentScore: -0.85 },
+      { date: "2023-11-21", headline: "Sam Altman reinstated as CEO after 5-day crisis; new board formed; Microsoft's influence grows", sentiment: "positive", sentimentScore: 0.7 },
+      { date: "2024-05-13", headline: "GPT-4o launched — real-time voice, vision, emotion detection; 'Her' moment for AI assistants", sentiment: "positive", sentimentScore: 0.85 },
+      { date: "2025-01-29", headline: "OpenAI raises $40B at $300B valuation — largest private tech fundraise in history", sentiment: "positive", sentimentScore: 0.8 },
+      { date: "2025-03-04", headline: "OpenAI converts to for-profit; Sam Altman receives equity stake; non-profit retains minority control", sentiment: "neutral", sentimentScore: 0.2 },
+    ],
+    players: [
+      { name: "Sam Altman", role: "CEO; survived board coup; now controls equity in $300B company" },
+      { name: "Microsoft", role: "$13B investor; Azure is OpenAI's exclusive cloud; Copilot is the enterprise distribution play" },
+      { name: "Elon Musk", role: "Co-founder turned adversary; sued OpenAI; launched xAI/Grok as direct competitor" },
+      { name: "Anthropic / Google", role: "Primary competitors; Claude 3.5 and Gemini Ultra challenge GPT-4o on benchmarks" },
+      { name: "Nvidia", role: "Sole supplier of H100/H200 GPUs; OpenAI's largest infrastructure cost" },
+    ],
+    contrarian: "OpenAI's $300B valuation assumes it maintains model leadership indefinitely. But open-source models (Llama 3, Mistral) are closing the gap rapidly at near-zero marginal cost. The real moat is distribution — ChatGPT's 200M weekly users and Microsoft's enterprise integration. But if Google embeds Gemini into 3B Android devices and 2B Gmail users, OpenAI's consumer distribution advantage evaporates.",
+    predictions: [
+      "GPT-5 release timeline — benchmark performance vs Gemini Ultra and Claude 4 determines narrative",
+      "Microsoft Copilot enterprise adoption rate — Q2 FY26 earnings will show AI revenue contribution",
+      "Watch open-source model releases — Meta Llama 4 could commoditise the mid-tier AI market",
+      "Regulatory risk: EU AI Act enforcement and US AI executive orders could constrain deployment",
+    ],
+  },
+
+  "nvidia": {
+    events: [
+      { date: "2023-05-24", headline: "Nvidia Q1 FY24 revenue guidance of $11B shocks Wall Street — 50% above consensus; AI chip demand explodes", sentiment: "positive", sentimentScore: 0.95 },
+      { date: "2023-06-13", headline: "Nvidia becomes first chip company to cross $1 trillion market cap", sentiment: "positive", sentimentScore: 0.9 },
+      { date: "2024-02-21", headline: "Q4 FY24 revenue $22.1B — up 265% YoY; data centre revenue $18.4B; Blackwell GPU announced", sentiment: "positive", sentimentScore: 0.92 },
+      { date: "2024-06-18", headline: "Nvidia briefly becomes world's most valuable company at $3.34 trillion, overtaking Microsoft and Apple", sentiment: "positive", sentimentScore: 0.88 },
+      { date: "2025-01-27", headline: "DeepSeek R1 launches — Chinese AI model matches GPT-4 at 1/30th the cost; Nvidia loses $600B in one day", sentiment: "negative", sentimentScore: -0.9 },
+      { date: "2025-04-09", headline: "US bans H20 chip exports to China; Nvidia takes $5.5B charge; stock falls 8%", sentiment: "negative", sentimentScore: -0.75 },
+    ],
+    players: [
+      { name: "Jensen Huang", role: "CEO & co-founder; transformed Nvidia from gaming GPU maker to AI infrastructure monopoly" },
+      { name: "Microsoft / Google / Meta", role: "Hyperscalers; each spending $50B+ on capex in 2025, majority on Nvidia GPUs" },
+      { name: "TSMC", role: "Sole manufacturer of Nvidia's advanced chips; Taiwan geopolitical risk is Nvidia's supply chain risk" },
+      { name: "DeepSeek (China)", role: "Proved efficient AI possible with fewer GPUs — existential question for Nvidia's demand thesis" },
+      { name: "AMD / Intel", role: "Distant competitors; MI300X gaining traction but 2-3 years behind on software ecosystem" },
+    ],
+    contrarian: "Nvidia's CUDA software moat is deeper than its hardware lead. Even if AMD or custom chips match H100 performance, switching costs from CUDA are enormous — years of optimised code, libraries, and developer muscle memory. The real risk is not competition but demand destruction: if DeepSeek-style efficiency gains mean 10× less compute per model, the $1 trillion capex cycle could peak earlier than the market expects.",
+    predictions: [
+      "Blackwell GB200 NVL72 rack shipment volumes — supply constraint resolution is the near-term catalyst",
+      "Hyperscaler capex guidance in Q1 2025 earnings — any reduction signals demand peak",
+      "China H20 ban impact on FY26 revenue — $15B+ annual China revenue at risk",
+      "Watch AMD MI350 launch and customer adoption — first real benchmark competition",
+    ],
+  },
+
+  "paytm crisis": {
+    events: [
+      { date: "2021-11-18", headline: "Paytm IPO lists at ₹1,560 — 27% below issue price of ₹2,150; worst large IPO debut in Indian history", sentiment: "negative", sentimentScore: -0.85 },
+      { date: "2022-11-14", headline: "Paytm stock hits all-time low of ₹438; down 80% from IPO price; profitability path questioned", sentiment: "negative", sentimentScore: -0.9 },
+      { date: "2024-01-31", headline: "RBI bans Paytm Payments Bank from onboarding new customers; cites persistent non-compliance", sentiment: "negative", sentimentScore: -0.88 },
+      { date: "2024-02-29", headline: "RBI extends Paytm Payments Bank deadline to March 15; Vijay Shekhar Sharma resigns as bank chairman", sentiment: "negative", sentimentScore: -0.8 },
+      { date: "2024-05-27", headline: "Paytm sells entertainment ticketing to Zomato for ₹2,048 crore — strategic retreat to core payments", sentiment: "neutral", sentimentScore: 0.1 },
+      { date: "2024-10-21", headline: "Paytm Q2 FY25: revenue stabilises; loan distribution resumes via third-party banks; stock recovers 60% from lows", sentiment: "positive", sentimentScore: 0.55 },
+    ],
+    players: [
+      { name: "Vijay Shekhar Sharma", role: "Founder & CEO; resigned as Payments Bank chairman under RBI pressure; retains One97 Communications CEO role" },
+      { name: "RBI", role: "Regulator; Payments Bank ban was the most severe action against a major fintech in Indian history" },
+      { name: "Ant Group (Alibaba)", role: "Largest shareholder; reduced stake amid India-China tensions and regulatory scrutiny" },
+      { name: "SoftBank", role: "Early investor; sold significant stake at losses; Paytm is a cautionary tale for SoftBank's India bets" },
+      { name: "PhonePe / Google Pay", role: "Gained UPI market share during Paytm's regulatory crisis" },
+    ],
+    contrarian: "Paytm's regulatory crisis was existential but the core UPI payments business survived. With 100M+ active users and merchant network intact, Paytm's distribution is still valuable. The question is whether a payments company without a bank licence can build a sustainable lending business through third-party partnerships — or whether the RBI action permanently capped its financial services ambitions.",
+    predictions: [
+      "Watch monthly transacting user (MTU) recovery — needs to return to 100M+ to restore advertiser confidence",
+      "Track loan distribution volumes via Axis Bank and other partners — key revenue recovery metric",
+      "Monitor RBI's stance on Paytm's future banking licence application",
+      "Ant Group stake sale could trigger block deal and short-term price pressure",
+    ],
+  },
+
+  "ukraine russia war": {
+    events: [
+      { date: "2022-02-24", headline: "Russia invades Ukraine — largest land war in Europe since WWII; global commodity markets in shock", sentiment: "negative", sentimentScore: -0.95 },
+      { date: "2022-03-08", headline: "Brent crude hits $139/barrel — 14-year high; wheat prices up 70%; India faces import bill surge", sentiment: "negative", sentimentScore: -0.85 },
+      { date: "2022-10-08", headline: "Kerch Bridge explosion; Russia retaliates with mass missile strikes on Ukrainian cities", sentiment: "negative", sentimentScore: -0.8 },
+      { date: "2023-06-06", headline: "Kakhovka dam destroyed; Ukraine launches summer counteroffensive — limited territorial gains", sentiment: "negative", sentimentScore: -0.7 },
+      { date: "2024-11-19", headline: "Biden authorises Ukraine to use US missiles to strike inside Russia; escalation risk spikes", sentiment: "negative", sentimentScore: -0.75 },
+      { date: "2025-02-12", headline: "Trump-Putin call; ceasefire framework discussions begin — Ukraine excluded from initial talks", sentiment: "neutral", sentimentScore: 0.15 },
+      { date: "2025-04-17", headline: "Partial ceasefire on energy infrastructure agreed; peace talks in Istanbul — markets price in war-end scenario", sentiment: "positive", sentimentScore: 0.6 },
+    ],
+    players: [
+      { name: "Vladimir Putin", role: "Initiated invasion; controls Russian war economy now running at 7% of GDP on defence" },
+      { name: "Volodymyr Zelensky", role: "Ukrainian President; navigating Trump's pressure to negotiate from weakened position" },
+      { name: "Donald Trump", role: "Pushing for rapid ceasefire; cut some military aid; direct line to Putin" },
+      { name: "India", role: "Bought discounted Russian oil throughout war; walked diplomatic tightrope between Moscow and Washington" },
+      { name: "EU / NATO", role: "Provided €100B+ in military aid; faces pressure as US reduces commitment" },
+    ],
+    contrarian: "A ceasefire is not peace. Russia controls 18% of Ukrainian territory and will not return it. Any frozen conflict leaves Ukraine's reconstruction (estimated $500B+) unfunded, NATO membership blocked, and Russian energy leverage over Europe partially restored. India's discounted Russian oil trade — worth $60B+ since 2022 — faces US secondary sanctions risk if Trump uses energy as a ceasefire bargaining chip.",
+    predictions: [
+      "Watch European natural gas storage levels — below 60% by October signals energy crisis re-run",
+      "Track India's Russian oil import volumes — any US sanctions threat would spike India's import bill",
+      "Monitor Ukraine reconstruction fund announcements — $500B opportunity for global infrastructure firms",
+      "NATO defence spending commitments — 3% GDP target would be largest European rearmament since Cold War",
+    ],
+  },
+
+  "reliance industries": {
+    events: [
+      { date: "2023-08-28", headline: "Reliance AGM: Mukesh Ambani announces Jio AirFiber launch, new energy gigafactory timeline, and retail IPO plans", sentiment: "positive", sentimentScore: 0.75 },
+      { date: "2024-02-29", headline: "Reliance Q3 FY24: consolidated revenue ₹2.34L crore; Jio adds 10M subscribers; O2C margins under pressure", sentiment: "neutral", sentimentScore: 0.2 },
+      { date: "2024-07-18", headline: "Ambani family wedding — Anant-Radhika; global attention; Reliance brand visibility at all-time high", sentiment: "positive", sentimentScore: 0.4 },
+      { date: "2024-09-05", headline: "Reliance Retail files DRHP confidentially; IPO could value it at $100B+ — India's largest ever listing", sentiment: "positive", sentimentScore: 0.8 },
+      { date: "2025-01-10", headline: "Jio raises tariffs 12-25% — second hike in 18 months; ARPU target of ₹200 by FY26 in sight", sentiment: "positive", sentimentScore: 0.7 },
+      { date: "2025-03-20", headline: "New Energy: Reliance's 5GW solar giga factory begins commercial production in Jamnagar", sentiment: "positive", sentimentScore: 0.65 },
+    ],
+    players: [
+      { name: "Mukesh Ambani", role: "Chairman; orchestrating succession to Isha (Retail), Akash (Jio), Anant (New Energy)" },
+      { name: "Jio Platforms", role: "450M subscribers; ARPU expansion is the primary earnings growth driver for FY26" },
+      { name: "Reliance Retail", role: "Largest Indian retailer; IPO could be India's biggest listing ever at $100B+ valuation" },
+      { name: "Aramco / BP", role: "Strategic partners in O2C and new energy; Aramco's 20% stake in O2C still pending" },
+      { name: "Airtel (Sunil Mittal)", role: "Primary Jio competitor; also raised tariffs — rational duopoly emerging in Indian telecom" },
+    ],
+    contrarian: "Reliance's sum-of-parts valuation looks compelling on paper but the conglomerate discount is real. Jio's ARPU expansion thesis requires Indian consumers to pay more — in a market where 200M subscribers are on sub-₹150 plans. New Energy capex is massive with uncertain returns timeline. The Retail IPO, if it happens, could actually be a negative catalyst for the parent stock as it crystallises value but removes the optionality premium.",
+    predictions: [
+      "Jio ARPU crossing ₹200 in FY26 is the single biggest earnings catalyst — watch quarterly data",
+      "Reliance Retail IPO filing date — any SEBI approval triggers re-rating of parent stock",
+      "New Energy: solar panel export volumes from Jamnagar factory signal commercial viability",
+      "Aramco O2C stake deal closure — has been pending since 2019; any update moves the stock",
+    ],
+  },
+
   "india gdp growth": {
     events: [
       { date: "2024-05-31", headline: "India's FY24 GDP growth revised to 8.2% — fastest among major economies; beats China's 5.2%", sentiment: "positive", sentimentScore: 0.85 },
