@@ -181,10 +181,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify SSH key format
+      - name: Setup SSH key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | head -1
-          echo "Key length: $(echo '${{ secrets.EC2_SSH_KEY }}' | wc -c) chars"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
