@@ -1,73 +1,134 @@
-name: ET-Pulse Deploy
+name: ET Pulse CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 concurrency:
-  group: deploy-main
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy-to-server:
+  # ── Job 1: Lint ────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    env:
-      DEPLOY_HOST: ${{ secrets.EC2_HOST || secrets.HOST }}
-      DEPLOY_USER: ${{ secrets.EC2_USER || secrets.USERNAME }}
-      DEPLOY_KEY: ${{ secrets.EC2_SSH_KEY || secrets.KEY }}
-      DEPLOY_PORT: ${{ secrets.EC2_PORT || secrets.PORT || '22' }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # ── Job 2: Type Check ──────────────────────────────────────────────────────
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript compiler
+        run: npx tsc --noEmit
+
+  # ── Job 3: Build ───────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: .next/
+          retention-days: 1
+
+  # ── Job 4: Deploy ──────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: http://${{ secrets.EC2_HOST }}:3000
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Validate deploy secrets
-        shell: bash
         run: |
-          set -euo pipefail
-          test -n "${DEPLOY_HOST}" || (echo "Missing deploy host secret (EC2_HOST or HOST)" && exit 1)
-          test -n "${DEPLOY_USER}" || (echo "Missing deploy user secret (EC2_USER or USERNAME)" && exit 1)
-          test -n "${DEPLOY_KEY}" || (echo "Missing deploy key secret (EC2_SSH_KEY or KEY)" && exit 1)
+          test -n "${{ secrets.EC2_HOST }}"    || (echo "❌ EC2_HOST secret missing"    && exit 1)
+          test -n "${{ secrets.EC2_USER }}"    || (echo "❌ EC2_USER secret missing"    && exit 1)
+          test -n "${{ secrets.EC2_SSH_KEY }}" || (echo "❌ EC2_SSH_KEY secret missing" && exit 1)
+          echo "✅ All deploy secrets present"
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.DEPLOY_HOST }}
-          username: ${{ env.DEPLOY_USER }}
-          key: ${{ env.DEPLOY_KEY }}
-          port: ${{ env.DEPLOY_PORT }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || 22 }}
           script: |
-            set -uo pipefail
-
-            # Project path on the remote host.
-            APP_DIR="/home/${{ env.DEPLOY_USER }}/et-pulse"
+            set -e
+            APP_DIR="/home/$USER/et-pulse"
             cd "$APP_DIR"
 
-            # Ensure compose can read runtime variables from the project root.
-            if [ ! -f .env.local ]; then
-              echo ".env.local is missing in $APP_DIR"
-              exit 1
-            fi
+            [ -f .env.local ] || (echo "❌ .env.local missing on server" && exit 1)
 
-            # Sync project code from main before restarting services.
             git fetch origin main
             git checkout main
             git pull --ff-only origin main
 
-            # Step 1: Force remove by exact container name (most reliable)
-            sudo docker rm -f et-pulse-intelligence et-pulse-news et-pulse-web-gateway et-pulse-nginx 2>/dev/null || true
+            sudo docker ps -a --format '{{.Names}}' | grep '^et-pulse' | xargs -r sudo docker rm -f || true
 
-            # Step 2: Also remove by any name starting with et-pulse- (catches renamed ones)
-            sudo docker ps -a --format '{{.Names}}' | grep '^et-pulse-' | xargs -r sudo docker rm -f || true
-
-            if command -v docker-compose >/dev/null 2>&1; then
-              COMPOSE_CMD="sudo docker-compose --env-file .env.local"
+            if command -v docker-compose &>/dev/null; then
+              COMPOSE="sudo docker-compose --env-file .env.local"
             else
-              COMPOSE_CMD="sudo docker compose --env-file .env.local"
+              COMPOSE="sudo docker compose --env-file .env.local"
             fi
 
-            # Step 3: Now run compose down for cleanup
-            $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
+            $COMPOSE down --remove-orphans 2>/dev/null || true
+            $COMPOSE up -d --build --force-recreate --remove-orphans
 
-            # Fail fast for the actual deploy action only.
-            set -e
-
-            # Step 4: Start fresh
-            $COMPOSE_CMD up -d --build --force-recreate --remove-orphans
+            echo "✅ Deployment complete"
