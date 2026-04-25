@@ -12,19 +12,32 @@ concurrency:
 jobs:
   deploy-to-server:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.EC2_HOST || secrets.HOST }}
+      DEPLOY_USER: ${{ secrets.EC2_USER || secrets.USERNAME }}
+      DEPLOY_KEY: ${{ secrets.EC2_SSH_KEY || secrets.KEY }}
+      DEPLOY_PORT: ${{ secrets.EC2_PORT || secrets.PORT || '22' }}
     steps:
+      - name: Validate deploy secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DEPLOY_HOST}" || (echo "Missing deploy host secret (EC2_HOST or HOST)" && exit 1)
+          test -n "${DEPLOY_USER}" || (echo "Missing deploy user secret (EC2_USER or USERNAME)" && exit 1)
+          test -n "${DEPLOY_KEY}" || (echo "Missing deploy key secret (EC2_SSH_KEY or KEY)" && exit 1)
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          host: ${{ env.DEPLOY_HOST }}
+          username: ${{ env.DEPLOY_USER }}
+          key: ${{ env.DEPLOY_KEY }}
+          port: ${{ env.DEPLOY_PORT }}
           script: |
             set -uo pipefail
 
             # Project path on the remote host.
-            APP_DIR="/home/${{ secrets.USERNAME }}/et-pulse"
+            APP_DIR="/home/${{ env.DEPLOY_USER }}/et-pulse"
             cd "$APP_DIR"
 
             # Ensure compose can read runtime variables from the project root.
