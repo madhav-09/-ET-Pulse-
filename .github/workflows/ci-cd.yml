@@ -181,15 +181,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify SSH key format
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" | head -1
+          echo "Key length: $(echo '${{ secrets.EC2_SSH_KEY }}' | wc -c) chars"
+
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          key_path: ""
+          timeout: 60s
+          command_timeout: 10m
           script: |
-            cd /home/${{ secrets.EC2_USER }}/et-pulse
             set -e
+            cd /home/${{ secrets.EC2_USER }}/et-pulse
             git pull origin main
             docker-compose pull
             docker-compose up -d
