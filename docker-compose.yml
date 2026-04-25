@@ -40,8 +40,6 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: "0.0.0.0"
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      NEWS_API_KEY: ${NEWS_API_KEY:-}
     depends_on:
       intelligence-api:
         condition: service_healthy
@@ -71,7 +69,6 @@ services:
       PORT: 4001
       REQUEST_TIMEOUT_MS: 15000
       RETRY_MAX_ATTEMPTS: 3
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     networks:
       - et-pulse-network
     restart: unless-stopped
@@ -95,7 +92,6 @@ services:
       NODE_ENV: production
       PORT: 4002
       CACHE_TTL_SECONDS: 60
-      NEWS_API_KEY: ${NEWS_API_KEY:-}
     networks:
       - et-pulse-network
     restart: unless-stopped
